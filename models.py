@@ -56,26 +56,41 @@ class ArcFaceLayer(nn.Module):
         return output
 
 
-# Create a model class that combines the backbone network (Resnet18) and the ArcFace layer
+# Create a model class that combines the backbone network (Resnet18) and (optinally) the ArcFace layer
 # The model class will be used for training and inference
 
-class ArcFaceModel(nn.Module):
-    def __init__(self, num_classes, embedding_size):
-        super(ArcFaceModel, self).__init__()
+class FaceModel(nn.Module):
+    def __init__(self, num_classes, embedding_size, use_arcface=True):
+        super(FaceModel, self).__init__()
         self.embedding_size = embedding_size
         self.num_classes = num_classes
+        self.use_arcface = use_arcface
 
         # Load a pre-trained backbone network (e.g., ResNet18)
-        self.backbone = models.resnet18(pretrained=True)
+        self.backbone = models.resnet18(weights= models.ResNet18_Weights.DEFAULT)
 
-        # Get number of features of the last layer of the backbone network
-        self.in_features = self.backbone.fc.in_features
+        # Freeze the backbone network
+        for param in self.backbone.parameters():
+            param.requires_grad = False
 
-        #Modify the fc layer of the backbone network to be an instance of the ArcFaceLayer layer
-        self.backbone.fc = ArcFaceLayer(self.in_features, self.num_classes)
+        # Replace the last fc layer of the backbone network with a one that outputs embedding_size
+        self.backbone.fc = nn.Linear(self.backbone.fc.in_features, self.embedding_size)
+
+        # If use_arcface is True, then create an ArcFace layer as an additional layer
+        if self.use_arcface:
+            # Create an new ArcFace layer
+            self.arcface = ArcFaceLayer(self.embedding_size, self.num_classes)
     
     def forward(self, x, labels=None):
-        output = self.backbone(x, labels)
+
+        # Get the output of the backbone network
+        x = self.backbone(x)
+
+        # if self.use_arcface is True, then pass the output of the backbone network through the ArcFace layer
+        if self.use_arcface:
+            output = self.arcface(x, labels)
+        else:
+            output = x
         return output
 
 
