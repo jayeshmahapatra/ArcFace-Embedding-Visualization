@@ -5,6 +5,8 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import CIFAR10
 from tqdm import tqdm
+from tabulate import tabulate
+import os
 
 from models import FaceModel
 
@@ -23,6 +25,8 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs):
     train_loop = tqdm(total=len(train_loader), leave=False)
     train_loop.set_description(f"Epochs: 0/{num_epochs}")
 
+    table_data = []  # Table data to store epoch, train loss, and val loss
+
 
     for epoch in range(num_epochs):
         total_loss = 0.0
@@ -38,7 +42,7 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs):
 
             train_loop.update(1)
 
-        avg_loss = total_loss / len(train_loader)
+        train_loss = total_loss / len(train_loader)
 
         # Validation
         model.eval()
@@ -57,9 +61,24 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs):
             torch.save(model.state_dict(), "models/best_model.pth")  # Save the model with the best validation loss
 
         train_loop.set_description(f"Epochs: {epoch+1}/{num_epochs}")
-        train_loop.set_postfix(loss=loss.item(), avg_loss=avg_loss, val_loss=val_loss)
+        train_loop.set_postfix(train_loss=train_loss, val_loss=val_loss)
 
         train_loop.reset()
+
+        # Store epoch, train loss, and val loss in table data
+        table_data.append([epoch+1, train_loss, val_loss])
+
+        # Create a table with epoch, train loss, and val loss
+        table = tabulate(table_data, headers=["Epoch", "Train Loss", "Val Loss"], tablefmt="presto")
+
+        # Print the table with updated data
+        if epoch == 0:
+            # First epoch, print the table normally
+            print(table)
+        else:
+            # Subsequent epochs, use carriage return to overwrite the previous table
+            table = tabulate(table_data, headers=["Epoch", "Train Loss", "Val Loss"], tablefmt="presto")
+            print(table, end="\r")
 
     train_loop.close()
 
