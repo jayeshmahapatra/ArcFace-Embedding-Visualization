@@ -8,7 +8,7 @@ from tqdm import tqdm
 from tabulate import tabulate
 import os
 
-from models import FaceModel
+from models import ArcFaceModel
 
 # Hyperparameters
 num_epochs = 10
@@ -106,8 +106,8 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
-    # Create an instance of FaceModel
-    model = FaceModel(num_classes=10, embedding_size=2, use_arcface=True).to(device)
+    # Create an instance of ArcFaceModel
+    model = ArcFaceModel(num_classes=10, embedding_size=2).to(device)
 
     # Loss function and optimizer
     criterion = nn.CrossEntropyLoss()
