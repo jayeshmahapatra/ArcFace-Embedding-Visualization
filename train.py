@@ -14,16 +14,11 @@ from models import ArcFaceModel
 from visualization import visualize_embeddings
 from dataset import CelebADataset
 
-# Set environment variables
-os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
-os.environ["TORCH_USE_CUDA_DSA"] = "1"
-torch.backends.cuda.matmul.allow_tf32 = False
-
 
 # Hyperparameters
-num_epochs = 50
+num_epochs = 80
 batch_size = 4
-learning_rate = 0.01
+learning_rate = 0.001
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -154,15 +149,18 @@ if __name__ == "__main__":
     # Create an instance of the dataset
     dataset = CelebADataset(root_dir="data/img_align_celeba", annotations_file="data/identity_CelebA.txt", transform=transform)
 
-    # Get the indices of the images belonging to the first 4 identities
-    indices = np.where(np.isin(dataset.annotations[1], np.array(dataset.annotations[1].value_counts()[:4].index)))[0]
+    #Define the number of classes. We extract the top num_classes identities from the dataset, sorted by the number of images they have
+    num_classes = 6
+
+    # Get the indices of the images belonging to the first num_classes identities
+    indices = np.where(np.isin(dataset.annotations[1], np.array(dataset.annotations[1].value_counts()[:num_classes].index)))[0]
 
     # Create a subset of the dataset with the indices
     subset = Subset(dataset, indices)
 
-    #Relabel the labels to be from 0 to 3
+    #Relabel the labels to be from 0 to num_classes-1
     # Create a unique mapping from the original labels to the new labels
-    mapping = {k: v for v, k in enumerate(np.array(dataset.annotations[1].value_counts()[:4].index))}
+    mapping = {k: v for v, k in enumerate(np.array(dataset.annotations[1].value_counts()[:num_classes].index))}
 
 
 
@@ -181,7 +179,7 @@ if __name__ == "__main__":
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Create an instance of ArcFaceModel
-    model = ArcFaceModel(num_classes=4, embedding_size=2).to(device)
+    model = ArcFaceModel(num_classes=num_classes, embedding_size=2).to(device)
 
     # Loss function and optimizer
     criterion = nn.CrossEntropyLoss()

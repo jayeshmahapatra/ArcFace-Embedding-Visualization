@@ -17,6 +17,16 @@ def visualize_embeddings(all_embeddings, all_labels):
     train_frames = []
     val_frames = []
 
+    #Get the min and max values for the train embeddings across all epochs
+    x_min = np.min([np.min(all_embeddings['train'][epoch][:,0]) for epoch in range(num_epochs)])
+    x_max = np.max([np.max(all_embeddings['train'][epoch][:,0]) for epoch in range(num_epochs)])
+    y_min = np.min([np.min(all_embeddings['train'][epoch][:,1]) for epoch in range(num_epochs)])
+    y_max = np.max([np.max(all_embeddings['train'][epoch][:,1]) for epoch in range(num_epochs)])
+
+    # Set the limits of the axes
+    xlim = [x_min - 0.1, x_max + 0.1]
+    ylim = [y_min - 0.1, y_max + 0.1]
+
     #Create gif for train
     for epoch in range(num_epochs):
         train_embeddings = all_embeddings['train'][epoch]
@@ -24,13 +34,26 @@ def visualize_embeddings(all_embeddings, all_labels):
 
         #Create a scatter plot with colored labels
         fig = plt.figure(figsize=(10,10))
+        ax = fig.add_subplot(111)
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+
+        
+
         for class_id in range(num_classes):
             class_indices = np.where(train_labels == class_id)[0]
-            plt.scatter(train_embeddings[class_indices, 0], train_embeddings[class_indices, 1], label=f"Class {class_id}")
+            ax.scatter(train_embeddings[class_indices, 0], train_embeddings[class_indices, 1], label=f"Class {class_id}")
+
+            # Add a unit circle to the plot
+            circle = plt.Circle((0,0), 1, color='red', fill=False)
+            ax.add_artist(circle)
         
         plt.title(f"Epoch [{epoch+1}/{num_epochs}] - Training Embeddings")
         plt.xlabel('Dimension 1')
         plt.ylabel('Dimension 2')
+        #Set the limits of the axes
+        fig.gca().set_xlim([x_min-0.1, x_max+0.1])
+        fig.gca().set_ylim([y_min-0.1, y_max+0.1])
         plt.legend()
 
         #Save the plot as an image
@@ -41,7 +64,18 @@ def visualize_embeddings(all_embeddings, all_labels):
         train_frames.append(imageio.imread('data/train_epoch_{}.png'.format(epoch)))
     
     #Save the list of frames as a GIF
-    imageio.mimsave('data/train_embeddings.gif', train_frames, duration=500)
+    imageio.mimsave('data/train_embeddings.gif', train_frames, duration=125)
+
+
+    #Get the min and max values for the val embeddings across all epochs
+    x_min = np.min([np.min(all_embeddings['val'][epoch][:,0]) for epoch in range(num_epochs)])
+    x_max = np.max([np.max(all_embeddings['val'][epoch][:,0]) for epoch in range(num_epochs)])
+    y_min = np.min([np.min(all_embeddings['val'][epoch][:,1]) for epoch in range(num_epochs)])
+    y_max = np.max([np.max(all_embeddings['val'][epoch][:,1]) for epoch in range(num_epochs)])
+
+    # Set the limits of the axes
+    xlim = [x_min - 0.1, x_max + 0.1]
+    ylim = [y_min - 0.1, y_max + 0.1]
 
     #Create gif for val
     for epoch in range(num_epochs):
@@ -50,13 +84,25 @@ def visualize_embeddings(all_embeddings, all_labels):
 
         #Create a scatter plot with colored labels
         fig = plt.figure(figsize=(10,10))
+        ax = fig.add_subplot(111)
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+        
+
         for class_id in range(num_classes):
             class_indices = np.where(val_labels == class_id)[0]
-            plt.scatter(val_embeddings[class_indices, 0], val_embeddings[class_indices, 1], label=f"Class {class_id}")
+            ax.scatter(val_embeddings[class_indices, 0], val_embeddings[class_indices, 1], label=f"Class {class_id}")
+
+            # Add a unit circle to the plot
+            circle = plt.Circle((0,0), 1, color='red', fill=False)
+            ax.add_artist(circle)
         
         plt.title(f"Epoch [{epoch+1}/{num_epochs}] - Validation Embeddings")
         plt.xlabel('Dimension 1')
         plt.ylabel('Dimension 2')
+        #Set the limits of the axes
+        fig.gca().set_xlim([x_min-0.1, x_max+0.1])
+        fig.gca().set_ylim([y_min-0.1, y_max+0.1])
         plt.legend()
 
         #Save the plot as an image
@@ -67,4 +113,4 @@ def visualize_embeddings(all_embeddings, all_labels):
         val_frames.append(imageio.imread('data/val_epoch_{}.png'.format(epoch)))
     
     #Save the list of frames as a GIF
-    imageio.mimsave('data/val_embeddings.gif', val_frames, duration=500)
+    imageio.mimsave('data/val_embeddings.gif', val_frames, duration=125)
