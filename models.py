@@ -18,8 +18,8 @@ class EmbeddingModel(nn.Module):
         self.backbone = models.resnet18(weights= models.ResNet18_Weights.DEFAULT)
 
         # Freeze the backbone network
-        # for param in self.backbone.parameters():
-        #     param.requires_grad = False
+        for param in self.backbone.parameters():
+            param.requires_grad = False
 
 
         # Replace the last fc layer of the backbone network with a one that outputs embedding_size

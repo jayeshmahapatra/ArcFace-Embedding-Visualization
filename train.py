@@ -8,14 +8,22 @@ import numpy as np
 from tqdm import tqdm
 from tabulate import tabulate
 import os
+import pandas as pd
 
 from models import ArcFaceModel
 from visualization import visualize_embeddings
+from dataset import CelebADataset
+
+# Set environment variables
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+os.environ["TORCH_USE_CUDA_DSA"] = "1"
+torch.backends.cuda.matmul.allow_tf32 = False
+
 
 # Hyperparameters
-num_epochs = 10
-batch_size = 16
-learning_rate = 0.001
+num_epochs = 50
+batch_size = 4
+learning_rate = 0.01
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -135,29 +143,45 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 if __name__ == "__main__":
 
     # Data processing and augmentation
+    # Define transformations
     transform = transforms.Compose([
-    transforms.Resize((224, 224)),  # Resize MNIST images to match the input size of ResNet18
-    transforms.Grayscale(num_output_channels=3),  # Convert MNIST images to 3 channels
+    transforms.CenterCrop(178),
+    transforms.Resize(128),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5], std=[0.5])
+    transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))
     ])
 
-    # Load the CIFAR10 dataset
-    dataset = MNIST(root="./data/mnist", train=True, transform=transform, download=True)
+    # Create an instance of the dataset
+    dataset = CelebADataset(root_dir="data/img_align_celeba", annotations_file="data/identity_CelebA.txt", transform=transform)
 
-    # Take a subset of dataset only containing classes 0-3
-    dataset = Subset(dataset, np.where(np.array(dataset.targets) < 4)[0])
+    # Get the indices of the images belonging to the first 4 identities
+    indices = np.where(np.isin(dataset.annotations[1], np.array(dataset.annotations[1].value_counts()[:4].index)))[0]
+
+    # Create a subset of the dataset with the indices
+    subset = Subset(dataset, indices)
+
+    #Relabel the labels to be from 0 to 3
+    # Create a unique mapping from the original labels to the new labels
+    mapping = {k: v for v, k in enumerate(np.array(dataset.annotations[1].value_counts()[:4].index))}
+
+
+
+    # Change the labels in the subset
+    for i in range(len(subset)):
+        subset.dataset.annotations.iloc[subset.indices[i], 1] = mapping[subset.dataset.annotations.iloc[subset.indices[i], 1]]
+
 
     # Split the dataset into training and validation sets
-    train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+    train_size = int(0.8 * len(subset))
+    val_size = len(subset) - train_size
+    train_dataset, val_dataset = random_split(subset, [train_size, val_size])
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    # Create data loaders
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Create an instance of ArcFaceModel
-    model = ArcFaceModel(num_classes=10, embedding_size=2).to(device)
+    model = ArcFaceModel(num_classes=4, embedding_size=2).to(device)
 
     # Loss function and optimizer
     criterion = nn.CrossEntropyLoss()
