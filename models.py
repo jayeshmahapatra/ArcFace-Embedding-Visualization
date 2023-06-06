@@ -18,8 +18,9 @@ class EmbeddingModel(nn.Module):
         self.backbone = models.resnet18(weights= models.ResNet18_Weights.DEFAULT)
 
         # Freeze the backbone network
-        for param in self.backbone.parameters():
-            param.requires_grad = False
+        # for param in self.backbone.parameters():
+        #     param.requires_grad = False
+
 
         # Replace the last fc layer of the backbone network with a one that outputs embedding_size
         self.backbone.fc = nn.Linear(self.backbone.fc.in_features, self.embedding_size)
@@ -38,16 +39,21 @@ class ArcFaceModel(EmbeddingModel):
     
     def forward(self, x, labels=None):
 
-        # Get the output of the backbone network
+        # Get the output of the backbone network, so that we can use it to compute the embedding vectors
         x = self.backbone(x)
+
+        # A cpu copy of the embedding vectors with detached gradients
+        embedding_vectors = x.cpu().detach()
     
         output = self.arcface(x, labels)
 
-        return output
+        return output, embedding_vectors
     
     # Add a method to get the embedding vector
     def get_embedding(self, x):
-        return self.backbone(x)
+        #no grad
+        with torch.no_grad():
+            return self.backbone(x)
 
 
 
