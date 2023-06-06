@@ -42,3 +42,29 @@ def visualize_embeddings(all_embeddings, all_labels):
     
     #Save the list of frames as a GIF
     imageio.mimsave('data/train_embeddings.gif', train_frames, duration=500)
+
+    #Create gif for val
+    for epoch in range(num_epochs):
+        val_embeddings = all_embeddings['val'][epoch]
+        val_labels = all_labels['val'][epoch]
+
+        #Create a scatter plot with colored labels
+        fig = plt.figure(figsize=(10,10))
+        for class_id in range(num_classes):
+            class_indices = np.where(val_labels == class_id)[0]
+            plt.scatter(val_embeddings[class_indices, 0], val_embeddings[class_indices, 1], label=f"Class {class_id}")
+        
+        plt.title(f"Epoch [{epoch+1}/{num_epochs}] - Validation Embeddings")
+        plt.xlabel('Dimension 1')
+        plt.ylabel('Dimension 2')
+        plt.legend()
+
+        #Save the plot as an image
+        plt.savefig('data/val_epoch_{}.png'.format(epoch))
+        plt.close(fig)
+
+        #Add the image to the list of frames
+        val_frames.append(imageio.imread('data/val_epoch_{}.png'.format(epoch)))
+    
+    #Save the list of frames as a GIF
+    imageio.mimsave('data/val_embeddings.gif', val_frames, duration=500)

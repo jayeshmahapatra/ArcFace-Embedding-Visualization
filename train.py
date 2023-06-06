@@ -13,7 +13,7 @@ from models import ArcFaceModel
 from visualization import visualize_embeddings
 
 # Hyperparameters
-num_epochs = 5
+num_epochs = 10
 batch_size = 16
 learning_rate = 0.001
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
