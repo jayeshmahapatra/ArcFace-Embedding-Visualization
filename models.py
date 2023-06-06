@@ -44,6 +44,10 @@ class ArcFaceModel(EmbeddingModel):
         output = self.arcface(x, labels)
 
         return output
+    
+    # Add a method to get the embedding vector
+    def get_embedding(self, x):
+        return self.backbone(x)
 
 
 
