@@ -1,4 +1,5 @@
 import torch
+import random
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
@@ -21,9 +22,16 @@ batch_size = 4
 learning_rate = 0.001
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Set the random seed for reproducible results
+seed = 42
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+
 
 # Function to train the model
-def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=False):
+def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=False, visualize_val=False):
     best_val_loss = float("inf")  # Initialize with a very high value
     model.train()
 
@@ -130,7 +138,7 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 
     #Create a visualization of the embeddings
     if save_embeddings:
-        visualize_embeddings(all_embeddings, all_labels)
+        visualize_embeddings(all_embeddings, all_labels, visualize_val= visualize_val)
     
 
 
@@ -175,7 +183,7 @@ if __name__ == "__main__":
     train_dataset, val_dataset = random_split(subset, [train_size, val_size])
 
     # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Create an instance of ArcFaceModel
@@ -186,4 +194,4 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Train the model using train() function
-    train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=True)
+    train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=True, visualize_val=False)
