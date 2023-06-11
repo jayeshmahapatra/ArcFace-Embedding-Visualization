@@ -18,10 +18,35 @@ class PlotPoints(Scene):
                 self.coordinates[i, j, 0] = random.uniform(-1, 1)
                 self.coordinates[i, j, 1] = random.uniform(-1, 1)
 
-        # Create a color map with random colors for each point
-        self.colors = [random_color() for _ in range(self.num_points)]
+        # Create a color map with random colors for each point, making sure colors don't repeat between points
+        self.colors = []
+        color_set = set()
+        while len(self.colors) < self.num_points:
+            color = random_color()
+            if color not in color_set:
+                self.colors.append(color)
+                color_set.add(color)
+        
 
     def construct(self):
+
+        # Calculate the maximum absolute coordinate value among all the dots
+        max_coordinate = np.max(np.abs(self.coordinates))
+
+         # Create a custom coordinate system using NumberPlane
+        custom_coords = NumberPlane(
+            x_range=(-max_coordinate, max_coordinate, 0.1),
+            y_range=(-max_coordinate, max_coordinate, 0.1),
+            background_line_style={"stroke_opacity": 0.5},
+            axis_config={"color": BLUE, "include_tip": True},
+            x_axis_config={"numbers_to_include": np.arange(-max_coordinate, max_coordinate + 0.1, 0.25)},
+            y_axis_config={"numbers_to_include": np.arange(-max_coordinate, max_coordinate + 0.1, 0.25)},
+        )
+
+        # Create axes using the custom coordinate system
+        axes = custom_coords.get_axes()
+        self.add(axes)
+
         # Create dots at the initial positions for each point
         dots = []
         for i in range(self.num_points):
@@ -48,9 +73,10 @@ class PlotPoints(Scene):
 
 
 # Create an instance of the PlotPoints class
-num_points = 6
-num_iterations = 20
+num_points = 3
+num_iterations = 3
 animation = PlotPoints(num_points, num_iterations)
+
 
 # Play the animation
 animation.render()
