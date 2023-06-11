@@ -1,17 +1,18 @@
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 import numpy as np
 from PIL import Image
 import imageio
 
 # # Import manim class
-# from manim_animation import EmbeddingsAnimation
+from manim_animation import PlotPoints
 
 # # Function to visualize the embeddings using mamin
-# def visualize_embeddings_manim(all_embeddings, all_labels, visualize_val=False):
-#     animation = EmbeddingsAnimation(all_embeddings, all_labels)
-#     animation.render()
-#     #animation.save_as_gif(filename='data/train_embeddings_manim.gif')
-#     pass
+def visualize_embeddings_manim(all_embeddings, all_labels, visualize_val=False):
+    animation = PlotPoints(all_embeddings, all_labels, num_samples=10)
+    animation.render()
+    #animation.save_as_gif(filename='data/train_embeddings_manim.gif')
+    pass
 
 
 
@@ -36,9 +37,14 @@ def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
     y_min = np.min([np.min(all_embeddings['train'][epoch][:,1]) for epoch in range(num_epochs)])
     y_max = np.max([np.max(all_embeddings['train'][epoch][:,1]) for epoch in range(num_epochs)])
 
+    #max absolute value
+    max_abs = max(abs(x_min), abs(x_max), abs(y_min), abs(y_max))
+
     # Set the limits of the axes
-    xlim = [x_min - 0.1, x_max + 0.1]
-    ylim = [y_min - 0.1, y_max + 0.1]
+    #xlim = [x_min - 0.1, x_max + 0.1]
+    #ylim = [y_min - 0.1, y_max + 0.1]
+    xlim = [-max_abs - 0.1, max_abs + 0.1]
+    ylim = [-max_abs - 0.1, max_abs + 0.1]
 
     #Create gif for train
     for epoch in range(num_epochs):
@@ -51,22 +57,35 @@ def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
 
-        
+        # Define a custom colormap excluding the color red
+        colors = ['blue', 'green', 'yellow', 'cyan', 'magenta', 'orange', 'purple']
+        cmap = ListedColormap(colors)
+
+        # Add a unit circle to the plot
+        circle = plt.Circle((0,0), 1, color='red', fill=False)
+        ax.add_artist(circle)
 
         for class_id in range(num_classes):
             class_indices = np.where(train_labels == class_id)[0]
-            ax.scatter(train_embeddings[class_indices, 0], train_embeddings[class_indices, 1], label=f"Class {class_id}")
+            ax.scatter(train_embeddings[class_indices, 0], train_embeddings[class_indices, 1], label=f"Class {class_id}", alpha=1)
 
-            # Add a unit circle to the plot
-            circle = plt.Circle((0,0), 1, color='red', fill=False)
-            ax.add_artist(circle)
+            
+
+            # Add axes to the plot with arrows
+            ax.arrow(xlim[0], 0, xlim[1] - xlim[0], 0, length_includes_head=True, head_width=0.05, color='black')
+            ax.arrow(0, ylim[0], 0, ylim[1] - ylim[0], length_includes_head=True, head_width=0.05, color='black')
+
         
         plt.title(f"Epoch [{epoch+1}/{num_epochs}] - Training Embeddings")
         plt.xlabel('Dimension 1')
         plt.ylabel('Dimension 2')
         #Set the limits of the axes
-        fig.gca().set_xlim([x_min-0.1, x_max+0.1])
-        fig.gca().set_ylim([y_min-0.1, y_max+0.1])
+        fig.gca().set_xlim([xlim[0]-0.1, xlim[1]+0.1])
+        fig.gca().set_ylim([ylim[0]-0.1, ylim[1]+0.1])
+
+        # Add the unit circle to the legend
+        ax.scatter([], [], color='red', label="Unit Circle")
+        
         plt.legend()
 
         #Save the plot as an image
@@ -78,53 +97,3 @@ def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
     
     #Save the list of frames as a GIF
     imageio.mimsave('data/train_embeddings.gif', train_frames, duration=125)
-
-    if visualize_val:
-
-        #Get the min and max values for the val embeddings across all epochs
-        x_min = np.min([np.min(all_embeddings['val'][epoch][:,0]) for epoch in range(num_epochs)])
-        x_max = np.max([np.max(all_embeddings['val'][epoch][:,0]) for epoch in range(num_epochs)])
-        y_min = np.min([np.min(all_embeddings['val'][epoch][:,1]) for epoch in range(num_epochs)])
-        y_max = np.max([np.max(all_embeddings['val'][epoch][:,1]) for epoch in range(num_epochs)])
-
-        # Set the limits of the axes
-        xlim = [x_min - 0.1, x_max + 0.1]
-        ylim = [y_min - 0.1, y_max + 0.1]
-
-        #Create gif for val
-        for epoch in range(num_epochs):
-            val_embeddings = all_embeddings['val'][epoch]
-            val_labels = all_labels['val'][epoch]
-
-            #Create a scatter plot with colored labels
-            fig = plt.figure(figsize=(10,10))
-            ax = fig.add_subplot(111)
-            ax.set_xlim(xlim)
-            ax.set_ylim(ylim)
-            
-
-            for class_id in range(num_classes):
-                class_indices = np.where(val_labels == class_id)[0]
-                ax.scatter(val_embeddings[class_indices, 0], val_embeddings[class_indices, 1], label=f"Class {class_id}")
-
-                # Add a unit circle to the plot
-                circle = plt.Circle((0,0), 1, color='red', fill=False)
-                ax.add_artist(circle)
-            
-            plt.title(f"Epoch [{epoch+1}/{num_epochs}] - Validation Embeddings")
-            plt.xlabel('Dimension 1')
-            plt.ylabel('Dimension 2')
-            #Set the limits of the axes
-            fig.gca().set_xlim([x_min-0.1, x_max+0.1])
-            fig.gca().set_ylim([y_min-0.1, y_max+0.1])
-            plt.legend()
-
-            #Save the plot as an image
-            plt.savefig('data/val_epoch_{}.png'.format(epoch))
-            plt.close(fig)
-
-            #Add the image to the list of frames
-            val_frames.append(imageio.imread('data/val_epoch_{}.png'.format(epoch)))
-        
-        #Save the list of frames as a GIF
-        imageio.mimsave('data/val_embeddings.gif', val_frames, duration=125)

@@ -17,7 +17,7 @@ from dataset import CelebADataset
 
 
 # Hyperparameters
-num_epochs = 10
+num_epochs = 80
 batch_size = 4
 learning_rate = 0.001
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -138,6 +138,7 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 
     #Create a visualization of the embeddings
     if save_embeddings:
+        #visualize_embeddings_manim(all_embeddings, all_labels, visualize_val= visualize_val)
         visualize_embeddings(all_embeddings, all_labels, visualize_val= visualize_val)
 
     
