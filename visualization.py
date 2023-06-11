@@ -3,6 +3,19 @@ import numpy as np
 from PIL import Image
 import imageio
 
+# # Import manim class
+# from manim_animation import EmbeddingsAnimation
+
+# # Function to visualize the embeddings using mamin
+# def visualize_embeddings_manim(all_embeddings, all_labels, visualize_val=False):
+#     animation = EmbeddingsAnimation(all_embeddings, all_labels)
+#     animation.render()
+#     #animation.save_as_gif(filename='data/train_embeddings_manim.gif')
+#     pass
+
+
+
+# Function to visualize the embeddings using matplotlib
 def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
     
     #Get the number of epochs

@@ -166,3 +166,4 @@ models/**
 #Ignore everything inside data folder except .gitkeep
 data/**
 !data/.gitkeep
+media/**
