@@ -12,7 +12,7 @@ import os
 import pandas as pd
 
 from models import ArcFaceModel
-from visualization import visualize_embeddings, visualize_embeddings_manim
+from visualization import visualize_embeddings
 from dataset import CelebADataset
 
 
@@ -138,7 +138,6 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 
     #Create a visualization of the embeddings
     if save_embeddings:
-        #visualize_embeddings_manim(all_embeddings, all_labels, visualize_val= visualize_val)
         visualize_embeddings(all_embeddings, all_labels, visualize_val= visualize_val)
 
     
