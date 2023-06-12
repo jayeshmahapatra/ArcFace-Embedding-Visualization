@@ -9,15 +9,15 @@ import imageio
 def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
     
     # First plot train embeddings
-    plot_embeddings(all_embeddings['train'], all_labels['train'], title_poststr="Training Embeddings")
+    plot_embeddings(all_embeddings['train'], all_labels['train'], title_poststr="Training_Embeddings")
 
     if visualize_val:
         # Then plot val embeddings
-        plot_embeddings(all_embeddings['val'], all_labels['val'], title_poststr="Validation Embeddings")
+        plot_embeddings(all_embeddings['val'], all_labels['val'], title_poststr="Validation_Embeddings")
 
 
 # Function to plot the embeddings using matplotlib
-def plot_embeddings(embeddings, labels, title_poststr = "Training Embeddings"):
+def plot_embeddings(embeddings, labels, title_poststr = "Training_Embeddings"):
     
     #Get the number of epochs
     num_epochs = len(embeddings)
@@ -28,8 +28,7 @@ def plot_embeddings(embeddings, labels, title_poststr = "Training Embeddings"):
     # Create a GIF of the embeddings
 
     #Create list to hold frames for train and val
-    train_frames = []
-    val_frames = []
+    frames = []
 
     #Get the min and max values for the train embeddings across all epochs
     x_min = np.min([np.min(embeddings[epoch][:,0]) for epoch in range(num_epochs)])
@@ -88,11 +87,11 @@ def plot_embeddings(embeddings, labels, title_poststr = "Training Embeddings"):
         plt.legend()
 
         #Save the plot as an image
-        plt.savefig('data/train_epoch_{}.png'.format(epoch))
+        plt.savefig(f"data/{title_poststr}_{epoch}.png")
         plt.close(fig)
 
         #Add the image to the list of frames
-        train_frames.append(imageio.imread('data/train_epoch_{}.png'.format(epoch)))
+        frames.append(imageio.imread(f"data/{title_poststr}_{epoch}.png"))
     
     #Save the list of frames as a GIF
-    imageio.mimsave('data/train_embeddings.gif', train_frames, duration=125)
+    imageio.mimsave(f"data/{title_poststr}.gif", frames, duration=125)
