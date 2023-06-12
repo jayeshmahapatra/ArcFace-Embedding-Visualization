@@ -6,14 +6,24 @@ import imageio
 
 
 
-# Function to visualize the embeddings using matplotlib
 def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
     
+    # First plot train embeddings
+    plot_embeddings(all_embeddings['train'], all_labels['train'], title_poststr="Training Embeddings")
+
+    if visualize_val:
+        # Then plot val embeddings
+        plot_embeddings(all_embeddings['val'], all_labels['val'], title_poststr="Validation Embeddings")
+
+
+# Function to plot the embeddings using matplotlib
+def plot_embeddings(embeddings, labels, title_poststr = "Training Embeddings"):
+    
     #Get the number of epochs
-    num_epochs = len(all_embeddings['train'])
+    num_epochs = len(embeddings)
 
     #Num classes
-    num_classes = len(np.unique(all_labels['train'][0]))
+    num_classes = len(np.unique(labels[0]))
 
     # Create a GIF of the embeddings
 
@@ -22,10 +32,10 @@ def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
     val_frames = []
 
     #Get the min and max values for the train embeddings across all epochs
-    x_min = np.min([np.min(all_embeddings['train'][epoch][:,0]) for epoch in range(num_epochs)])
-    x_max = np.max([np.max(all_embeddings['train'][epoch][:,0]) for epoch in range(num_epochs)])
-    y_min = np.min([np.min(all_embeddings['train'][epoch][:,1]) for epoch in range(num_epochs)])
-    y_max = np.max([np.max(all_embeddings['train'][epoch][:,1]) for epoch in range(num_epochs)])
+    x_min = np.min([np.min(embeddings[epoch][:,0]) for epoch in range(num_epochs)])
+    x_max = np.max([np.max(embeddings[epoch][:,0]) for epoch in range(num_epochs)])
+    y_min = np.min([np.min(embeddings[epoch][:,1]) for epoch in range(num_epochs)])
+    y_max = np.max([np.max(embeddings[epoch][:,1]) for epoch in range(num_epochs)])
 
     #max absolute value
     max_abs = max(abs(x_min), abs(x_max), abs(y_min), abs(y_max))
@@ -38,8 +48,8 @@ def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
 
     #Create gif for train
     for epoch in range(num_epochs):
-        train_embeddings = all_embeddings['train'][epoch]
-        train_labels = all_labels['train'][epoch]
+        epoch_embeddings = embeddings[epoch]
+        epoch_labels = labels[epoch]
 
         #Create a scatter plot with colored labels
         fig = plt.figure(figsize=(10,10))
@@ -56,8 +66,8 @@ def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
         ax.add_artist(circle)
 
         for class_id in range(num_classes):
-            class_indices = np.where(train_labels == class_id)[0]
-            ax.scatter(train_embeddings[class_indices, 0], train_embeddings[class_indices, 1], label=f"Class {class_id}", alpha=1)
+            class_indices = np.where(epoch_labels == class_id)[0]
+            ax.scatter(epoch_embeddings[class_indices, 0], epoch_embeddings[class_indices, 1], label=f"Class {class_id}", alpha=1)
 
             
 
@@ -65,8 +75,7 @@ def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
             ax.arrow(xlim[0], 0, xlim[1] - xlim[0], 0, length_includes_head=True, head_width=0.05, color='black')
             ax.arrow(0, ylim[0], 0, ylim[1] - ylim[0], length_includes_head=True, head_width=0.05, color='black')
 
-        
-        plt.title(f"Epoch [{epoch+1}/{num_epochs}] - Training Embeddings")
+        plt.title(f"Epoch [{epoch+1}/{num_epochs}] - {title_poststr}")
         plt.xlabel('Dimension 1')
         plt.ylabel('Dimension 2')
         #Set the limits of the axes
