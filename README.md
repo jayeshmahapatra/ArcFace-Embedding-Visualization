@@ -10,7 +10,8 @@ This repository contains code for code for creating 2D ArcFace embeddings and vi
    </figure>
 </p>
 
-This is a companion repo to my blog about ArcFace Loss and it's use in training Face recognition models.
+This is a companion repo to my blog about ArcFace Loss and it's use in training Face recognition models.<br />
+I use a toy subset of the [CelebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) dataset and finetune last layers of frozen Resnet18 on it using ArcFace Loss to generate these training embeddings.
 
 ## Usage
 
