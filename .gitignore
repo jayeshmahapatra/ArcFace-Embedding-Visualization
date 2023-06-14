@@ -166,4 +166,5 @@ models/**
 #Ignore everything inside data folder except .gitkeep
 data/**
 !data/.gitkeep
+!data/Training_Embeddings.gif
 media/**
