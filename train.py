@@ -12,14 +12,13 @@ import os
 import pandas as pd
 
 from models import ArcFaceModel, VGG8ArcFace
-from visualization import visualize_embeddings
 from dataset import CelebADataset
 from torchvision.datasets import MNIST
 
 
 # Hyperparameters
-num_epochs = 20
-batch_size = 4
+num_epochs = 50
+batch_size = 128
 learning_rate = 0.001
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -32,7 +31,7 @@ torch.cuda.manual_seed(seed)
 
 
 # Function to train the model
-def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=False, visualize_val=False):
+def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=False):
     best_val_loss = float("inf")  # Initialize with a very high value
     model.train()
 
@@ -137,12 +136,11 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 
     print("Training complete!")
 
-    #Create a visualization of the embeddings
+    #Save the embeddings and labels to a file
     if save_embeddings:
-        visualize_embeddings(all_embeddings, all_labels, visualize_val= visualize_val)
-
+        np.save('data/all_embeddings.npy', all_embeddings)
+        np.save('data/all_labels.npy', all_labels)
     
-
 
 # __main__ function
 if __name__ == "__main__":
@@ -177,11 +175,11 @@ if __name__ == "__main__":
 
     # Create an instance of ArcFaceModel
     #model = ArcFaceModel(num_classes=num_classes, embedding_size=2).to(device)
-    model = VGG8ArcFace(num_classes=num_classes, num_features=2).to(device)
+    model = VGG8ArcFace(num_classes=num_classes, num_features=3).to(device)
 
     # Loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Train the model using train() function
-    train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=True, visualize_val=False)
+    train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=True)
