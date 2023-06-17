@@ -5,55 +5,7 @@ import torchvision.models as models
 
 from loss_layers import ArcFaceLayer
 
-# Create a model class that combines the backbone network (Resnet18) and (optinally) the ArcFace layer
-# The model class will be used for training and inference
-
-# Create a base class called EmbeddingModel that contains the backbone network
-class EmbeddingModel(nn.Module):
-    def __init__(self, embedding_size):
-        super(EmbeddingModel, self).__init__()
-        self.embedding_size = embedding_size
-
-        # Load a pre-trained backbone network (e.g., ResNet18)
-        self.backbone = models.resnet18(weights= models.ResNet18_Weights.DEFAULT)
-
-        # Freeze the backbone network
-        for param in self.backbone.parameters():
-            param.requires_grad = False
-
-
-        # Replace the last fc layer of the backbone network with a one that outputs embedding_size
-        self.backbone.fc = nn.Linear(self.backbone.fc.in_features, self.embedding_size)
-
-
-# ArcFaceModel is a subclass of EmbeddingModel that adds an ArcFace layer
-class ArcFaceModel(EmbeddingModel):
-    def __init__(self, num_classes, embedding_size):
-        super(ArcFaceModel, self).__init__(embedding_size)
-
-        # Number of classes
-        self.num_classes = num_classes
-
-        # Create an new ArcFace layer
-        self.arcface = ArcFaceLayer(self.embedding_size, self.num_classes)
-    
-    def forward(self, x, labels=None):
-
-        # Get the output of the backbone network, so that we can use it to compute the embedding vectors
-        x = self.backbone(x)
-
-        # A cpu copy of the embedding vectors with detached gradients
-        embedding_vectors = x.cpu().detach()
-    
-        output = self.arcface(x, labels)
-
-        return output, embedding_vectors
-    
-    # Add a method to get the embedding vector
-    def get_embedding(self, x):
-        #no grad
-        with torch.no_grad():
-            return self.backbone(x)
+# Create resusable VGGBlock to be used to create a VGG8 network
 
 class VGGBlock(nn.Module):
     def __init__(self, in_channels, out_channels, num_layers):
@@ -68,6 +20,8 @@ class VGGBlock(nn.Module):
 
     def forward(self, x):
         return self.block(x)
+    
+# Create a VGG8 network with ArcFace layer at the end
     
 class VGG8ArcFace(nn.Module):
     def __init__(self, num_features, num_classes):
