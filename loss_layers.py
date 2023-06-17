@@ -37,7 +37,7 @@ class ArcFaceLayer(nn.Module):
         adjusted_cos_theta = torch.cos(theta)
 
         #One hot encode labels
-        one_hot = torch.zeros(cos_theta.size(), device='cuda')
+        one_hot = torch.zeros(cos_theta.size(), device=x.device)
 
         #Fill the one hot encoded tensor with 1s at the label indices
         one_hot.scatter_(1, labels.view(-1, 1).long(), 1)
