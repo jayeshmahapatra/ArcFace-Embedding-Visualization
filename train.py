@@ -11,13 +11,14 @@ from tabulate import tabulate
 import os
 import pandas as pd
 
-from models import ArcFaceModel
+from models import ArcFaceModel, VGG8ArcFace
 from visualization import visualize_embeddings
 from dataset import CelebADataset
+from torchvision.datasets import MNIST
 
 
 # Hyperparameters
-num_epochs = 80
+num_epochs = 20
 batch_size = 4
 learning_rate = 0.001
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -146,49 +147,37 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 # __main__ function
 if __name__ == "__main__":
 
-    # Data processing and augmentation
-    # Define transformations
-    transform = transforms.Compose([
-    transforms.CenterCrop(178),
-    transforms.Resize(128),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))
-    ])
 
-    # Create an instance of the dataset
-    dataset = CelebADataset(root_dir="data/img_align_celeba", annotations_file="data/identity_CelebA.txt", transform=transform)
+    # Transforms to be applied on the MNIST images
+    transform = transforms.Compose([transforms.ToTensor(),
+                                    transforms.Normalize((0.1307,), (0.3081,))])  
 
-    #Define the number of classes. We extract the top num_classes identities from the dataset, sorted by the number of images they have
-    num_classes = 6
+    #Load MNIST dataset
+    dataset = MNIST(root="data/", download=True, transform=transform)
 
-    # Get the indices of the images belonging to the first num_classes identities
-    indices = np.where(np.isin(dataset.annotations[1], np.array(dataset.annotations[1].value_counts()[:num_classes].index)))[0]
-
-    # Create a subset of the dataset with the indices
-    subset = Subset(dataset, indices)
-
-    #Relabel the labels to be from 0 to num_classes-1
-    # Create a unique mapping from the original labels to the new labels
-    mapping = {k: v for v, k in enumerate(np.array(dataset.annotations[1].value_counts()[:num_classes].index))}
+    #number of classes
+    num_classes = len(dataset.classes)
 
 
+    # Split the dataset into training, validation and test sets
 
-    # Change the labels in the subset
-    for i in range(len(subset)):
-        subset.dataset.annotations.iloc[subset.indices[i], 1] = mapping[subset.dataset.annotations.iloc[subset.indices[i], 1]]
+    # Define the split sizes
+    train_size = int(0.8 * len(dataset))
+    val_size = int(0.1 * len(dataset))
+    test_size = len(dataset) - train_size - val_size
 
+    # Use the random_split function to split dataset into non-overlapping training, validation and test sets
+    train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size])
 
-    # Split the dataset into training and validation sets
-    train_size = int(0.8 * len(subset))
-    val_size = len(subset) - train_size
-    train_dataset, val_dataset = random_split(subset, [train_size, val_size])
+                                  
 
-    # Create data loaders
+    # Create data loaders with transforms, no shuffling for repeatable results
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Create an instance of ArcFaceModel
-    model = ArcFaceModel(num_classes=num_classes, embedding_size=2).to(device)
+    #model = ArcFaceModel(num_classes=num_classes, embedding_size=2).to(device)
+    model = VGG8ArcFace(num_classes=num_classes, num_features=2).to(device)
 
     # Loss function and optimizer
     criterion = nn.CrossEntropyLoss()
