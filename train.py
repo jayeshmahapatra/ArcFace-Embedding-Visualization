@@ -11,8 +11,7 @@ from tabulate import tabulate
 import os
 import pandas as pd
 
-from models import ArcFaceModel, VGG8ArcFace
-from dataset import CelebADataset
+from models import VGG8ArcFace
 from torchvision.datasets import MNIST
 
 
@@ -57,9 +56,6 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
             data, target = data.to(device), target.to(device)
             optimizer.zero_grad()
             output, train_batch_embeddings = model(data, target)  # Pass both data and target to the model's forward method
-
-            # if epoch == 2:
-            #     print(train_batch_embeddings)
             
             #Save the embeddings and labels for visualization
             if save_embeddings:
@@ -145,7 +141,6 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 # __main__ function
 if __name__ == "__main__":
 
-
     # Transforms to be applied on the MNIST images
     transform = transforms.Compose([transforms.ToTensor(),
                                     transforms.Normalize((0.1307,), (0.3081,))])  
@@ -156,7 +151,6 @@ if __name__ == "__main__":
     #number of classes
     num_classes = len(dataset.classes)
 
-
     # Split the dataset into training, validation and test sets
 
     # Define the split sizes
@@ -166,8 +160,6 @@ if __name__ == "__main__":
 
     # Use the random_split function to split dataset into non-overlapping training, validation and test sets
     train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size])
-
-                                  
 
     # Create data loaders with transforms, no shuffling for repeatable results
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
