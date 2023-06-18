@@ -1,7 +1,7 @@
 
 # 3D ArcFace Embeddings Visualization
 
-This repository contains code for code for creating 2D ArcFace embeddings and visualizing their separation during training. The goal is to demonstrate how different classes get separated from each other through the course of training using the ArcFace loss.
+This repository contains code for code for creating 3D ArcFace embeddings (projected to a unit sphere) and visualizing their separation during training. The goal is to demonstrate how different classes get separated from each other through the course of training using the ArcFace loss.
 
 <p align="center">
    <figure>
