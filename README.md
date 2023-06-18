@@ -27,7 +27,7 @@ git clone https://github.com/jayeshmahapatra/ArcFace-Embedding-Visualization.git
 pip install -r requirements.txt
 ```
 
-#### 3. Run the training script to train a VGG8 model on the `MNIST` dataset.
+#### 3. Run the training script to train a VGG8 model on the `MNIST` dataset. This will download the `MNIST` dataset and train the model on that.
 
 ```
 python train.py
