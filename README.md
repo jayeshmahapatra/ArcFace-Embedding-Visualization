@@ -6,44 +6,50 @@ This repository contains code for code for creating 2D ArcFace embeddings and vi
 <p align="center">
    <figure>
    <img src="data/Training_Embeddings.gif" width="500" height="500"/>
-   <figcaption>Fig.1 - A GIF demonstrating how 2d embeddings evolve during training.</figcaption>
+   <figcaption>Fig.1 - A GIF demonstrating how 3d embeddings evolve during training.</figcaption>
    </figure>
 </p>
 
 This is a companion repo to my blog about using ArcFace Loss.<br />
-I use a toy subset of the [CelebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) dataset and finetune last layers of frozen Resnet18 on it using ArcFace Loss to generate these training embeddings.
+We train a VGG8 Network with ArcFace Loss to generate these embeddings.
 
 ## Usage
 
 To use this code to produce and visualize embeddings:
 
-1. Clone the repository.
+#### 1. Clone the repository.
 ```
 git clone https://github.com/jayeshmahapatra/ArcFace-Embedding-Visualization.git
 ```
 
-2. Install the required dependencies.
+#### 2. Install the required dependencies.
 ```
 pip install -r requirements.txt
 ```
 
-3. Download the `Align&Cropped CelebA dataset` from this [link](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) and extract it inside the [data](./data/) folder.
+#### 3. Run the training script to train a VGG8 model on the `MNIST` dataset.
 
 ```
-data/img_align/celeba
+python train.py
 ```
 
-4. Download the annotations `Identities Annotations` from the same link and place it inside [data](./data/) folder as `identity_CelebA.txt`
+This will also save the training and validation embeddings generated during the training. The embeddings are stored at:
+
+- data/all_embeddings.npy
+- data/all_labels.npy
+
+
+#### 4. Run the visualization script to generate gifs visualizing how the embeddings evolved through the course the model training.
 
 ```
-data/identity_CelebA.txt
+python visualization.py
 ```
 
-5. Run the training script which will finetune a frozen Resnet18 model on a small subset of `CelebA` and generate embedding visualizations. This will be stored inside the data folder at
+This script will generate plots for how embeddings looked at each epoch, and then combine these plots to generate gifs. These gifs are stored at:
 
-```
-data/Training_Embeddings.gif
-```
+
+- data/Training_Embeddings.gif
+- data/Validation_Embeddings.gif
 
 ## Contributing
 
