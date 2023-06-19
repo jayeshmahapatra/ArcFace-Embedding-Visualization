@@ -10,19 +10,20 @@ from tqdm import tqdm
 from tabulate import tabulate
 import os
 import pandas as pd
+import argparse
 
-from models import VGG8ArcFace
+from models import VGG8ArcFace, VGG8Softmax
 from torchvision.datasets import MNIST
 
 
 # Hyperparameters
-num_epochs = 50
+num_epochs = 5
 batch_size = 128
 learning_rate = 0.001
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Set the random seed for reproducible results
-seed = 42
+seed = 40
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
@@ -30,7 +31,7 @@ torch.cuda.manual_seed(seed)
 
 
 # Function to train the model
-def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=False):
+def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=False, args=None):
     best_val_loss = float("inf")  # Initialize with a very high value
     model.train()
 
@@ -134,12 +135,23 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 
     #Save the embeddings and labels to a file
     if save_embeddings:
-        np.save('data/all_embeddings.npy', all_embeddings)
-        np.save('data/all_labels.npy', all_labels)
+        np.save(f'data/all_{args.model}_embeddings.npy', all_embeddings)
+        np.save(f'data/all_{args.model}_labels.npy', all_labels)
     
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Train a model on MNIST dataset')
+
+    parser.add_argument('--model', type=str, default='vgg8_arcface', help='Model to train')
+
+    return parser.parse_args()
 
 # __main__ function
 if __name__ == "__main__":
+
+    #arg parser
+    args = parse_arguments()
+
 
     # Transforms to be applied on the MNIST images
     transform = transforms.Compose([transforms.ToTensor(),
@@ -155,7 +167,7 @@ if __name__ == "__main__":
 
     # Define the split sizes
     train_size = int(0.8 * len(dataset))
-    val_size = int(0.1 * len(dataset))
+    val_size = int(0.2 * len(dataset))
     test_size = len(dataset) - train_size - val_size
 
     # Use the random_split function to split dataset into non-overlapping training, validation and test sets
@@ -166,12 +178,15 @@ if __name__ == "__main__":
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Create an instance of ArcFaceModel
-    #model = ArcFaceModel(num_classes=num_classes, embedding_size=2).to(device)
-    model = VGG8ArcFace(num_classes=num_classes, num_features=3).to(device)
+    if args.model == 'vgg8_arcface':
+        model = VGG8ArcFace(num_classes=num_classes, num_features=3).to(device)
+    elif args.model == 'vgg8_softmax':
+        model = VGG8Softmax(num_classes=num_classes, num_features=3).to(device)
+
 
     # Loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Train the model using train() function
-    train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=True)
+    train(model, train_loader, val_loader, optimizer, criterion, num_epochs, save_embeddings=True, args=args)

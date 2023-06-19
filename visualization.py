@@ -4,21 +4,21 @@ from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 from PIL import Image
 import imageio
+import argparse
 
 
-
-def visualize_embeddings(all_embeddings, all_labels, visualize_val=False):
+def visualize_embeddings(all_embeddings, all_labels, visualize_val=False, args=None):
     
     # First plot train embeddings
-    plot_embeddings(all_embeddings['train'], all_labels['train'], title_poststr="Training_Embeddings")
+    plot_embeddings(all_embeddings['train'], all_labels['train'], title_poststr="Training_Embeddings", args=args)
 
     if visualize_val:
         # Then plot val embeddings
-        plot_embeddings(all_embeddings['val'], all_labels['val'], title_poststr="Validation_Embeddings")
+        plot_embeddings(all_embeddings['val'], all_labels['val'], title_poststr="Validation_Embeddings", args=args)
 
 
 # Function to plot the embeddings using matplotlib
-def plot_embeddings(embeddings, labels, title_poststr = "Training_Embeddings"):
+def plot_embeddings(embeddings, labels, title_poststr = "Training_Embeddings", args=None):
     
     #Get the number of epochs
     num_epochs = len(embeddings)
@@ -57,21 +57,29 @@ def plot_embeddings(embeddings, labels, title_poststr = "Training_Embeddings"):
         plt.legend()
 
         #Save the plot as an image
-        plt.savefig(f"data/{title_poststr}_{epoch}.png")
+        plt.savefig(f"data/{args.model}_{title_poststr}_{epoch}.png")
         plt.close(fig)
 
         #Add the image to the list of frames
-        frames.append(imageio.imread(f"data/{title_poststr}_{epoch}.png"))
+        frames.append(imageio.imread(f"data/{args.model}_{title_poststr}_{epoch}.png"))
     
     #Save the list of frames as a GIF
-    imageio.mimsave(f"data/{title_poststr}.gif", frames, duration=125)
+    imageio.mimsave(f"data/{args.model}_{title_poststr}.gif", frames, duration=125)
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Train a model on MNIST dataset')
+
+    parser.add_argument('--model', type=str, default='vgg8_arcface', help='Model to train')
+
+    return parser.parse_args()
 
 if __name__ == "__main__":
 
+    args = parse_arguments()
+
     #Load the embeddings and labels
-    all_embeddings = np.load("data/all_embeddings.npy", allow_pickle=True).item()
-    all_labels = np.load("data/all_labels.npy", allow_pickle=True).item()
+    all_embeddings = np.load(f"data/all_{args.model}_embeddings.npy", allow_pickle=True).item()
+    all_labels = np.load(f"data/all_{args.model}_labels.npy", allow_pickle=True).item()
 
     #Visualize the embeddings
-    visualize_embeddings(all_embeddings, all_labels, visualize_val=True)
+    visualize_embeddings(all_embeddings, all_labels, visualize_val=True, args=args)

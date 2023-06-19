@@ -21,6 +21,61 @@ class VGGBlock(nn.Module):
     def forward(self, x):
         return self.block(x)
     
+# Create a VGG8 network with Softmax layer at the end
+
+class VGG8Softmax(nn.Module):
+    def __init__(self, num_features, num_classes):
+        super(VGG8Softmax, self).__init__()
+        self.block1 = VGGBlock(1, 16, 2)
+        self.maxpool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.block2 = VGGBlock(16, 32, 2)
+        self.maxpool2 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.block3 = VGGBlock(32, 64, 2)
+        self.maxpool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.batchnorm = nn.BatchNorm2d(64)
+        self.dropout = nn.Dropout(0.5)
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(64 * 3 * 3, num_features)
+        self.batchnorm2 = nn.BatchNorm1d(num_features)
+        self.fc2 = nn.Linear(num_features, num_classes)
+        self.softmax = nn.Softmax(dim=1)
+    
+    def forward(self, x, labels=None):
+        x = self.block1(x)
+        x = self.maxpool1(x)
+        x = self.block2(x)
+        x = self.maxpool2(x)
+        x = self.block3(x)
+        x = self.maxpool3(x)
+        x = self.batchnorm(x)
+        x = self.dropout(x)
+        x = self.flatten(x)
+        x = self.fc1(x)
+        x = self.batchnorm2(x)
+        embedding_vectors = x.cpu().detach()
+        x = F.normalize(x)
+        x = self.fc2(x)
+        x = self.softmax(x)
+        return x, embedding_vectors
+    
+    def get_embedding(self, x):
+            
+            #no grad
+            with torch.no_grad():
+                x = self.block1(x)
+                x = self.maxpool1(x)
+                x = self.block2(x)
+                x = self.maxpool2(x)
+                x = self.block3(x)
+                x = self.maxpool3(x)
+                x = self.batchnorm(x)
+                x = self.dropout(x)
+                x = self.flatten(x)
+                x = self.fc1(x)
+                x = self.batchnorm2(x)
+                return x
+
+    
 # Create a VGG8 network with ArcFace layer at the end
     
 class VGG8ArcFace(nn.Module):

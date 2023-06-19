@@ -5,7 +5,7 @@ import torch.nn.functional as F
 # Create nn.module class called ArcFace that can be plugged in at the end of any backbone network
 
 class ArcFaceLayer(nn.Module):
-    def __init__(self, in_features, num_classes, s=32, m=0.5):
+    def __init__(self, in_features, num_classes, s=2, m=0.5):
         super(ArcFaceLayer, self).__init__()
 
         #Margin parameter and scaling factor
