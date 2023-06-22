@@ -1,7 +1,7 @@
 
 # 3D ArcFace Embeddings Visualization
 
-This repository contains code for visualizing how embeddings evolve when trained using ArcFace and Softmax Loss.
+This repository contains code for visualizing how embeddings evolve when trained using ArcFace vs Softmax Loss.
 
 
 <div align="center">
