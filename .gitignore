@@ -166,5 +166,5 @@ models/**
 #Ignore everything inside data folder except .gitkeep
 data/**
 !data/.gitkeep
-!data/Training_Embeddings.gif
-media/**
+!data/vgg8_arcface_Training_Embeddings.gif
+!data/vgg8_softmax_Training_Embeddings.gif
