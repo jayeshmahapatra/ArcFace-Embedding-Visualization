@@ -5,7 +5,7 @@ This repository contains code for visualizing how embeddings evolve when trained
 
 
 <div align="center">
-   <h3>Embedding Comparison</h3>
+   <h3>Visualization of Embedding Separation across Training Epochs</h3>
    <table>
       <tr>
          <td align="center">
