@@ -3,13 +3,12 @@ import random
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader, random_split, Subset
+from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
 import numpy as np
 from tqdm import tqdm
-from tabulate import tabulate
-import os
-import pandas as pd
+from prettytable import PrettyTable
+from IPython.display import clear_output
 import argparse
 
 from models import VGG8ArcFace, VGG8Softmax
@@ -38,8 +37,6 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
     train_loop = tqdm(total=len(train_loader), leave=False)
     train_loop.set_description(f"Epochs: 0/{num_epochs}")
 
-    table_data = []  # Table data to store epoch, train loss, and val loss
-
     #Dictionary to store the embeddings and labels for visualization
     all_embeddings = {}
     all_labels = {}
@@ -49,6 +46,11 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 
     all_labels['train'] = []
     all_labels['val'] = []
+
+    #Table to store metrics for display
+    table = PrettyTable()
+    table.field_names = ["Epoch", "Train Loss", "Val Loss"]
+    table.align = "l"
 
     for epoch in range(num_epochs):
         total_loss = 0.0
@@ -114,20 +116,11 @@ def train(model, train_loader, val_loader, optimizer, criterion, num_epochs, sav
 
         train_loop.reset()
 
-        # Store epoch, train loss, and val loss in table data
-        table_data.append([epoch+1, train_loss, val_loss])
-
-        # Create a table with epoch, train loss, and val loss
-        table = tabulate(table_data, headers=["Epoch", "Train Loss", "Val Loss"], tablefmt="presto")
-
         # Print the table with updated data
-        if epoch == 0:
-            # First epoch, print the table normally
-            print(table)
-        else:
-            # Subsequent epochs, use carriage return to overwrite the previous table
-            table = tabulate(table_data, headers=["Epoch", "Train Loss", "Val Loss"], tablefmt="presto")
-            print(table, end="\r")
+        clear_output(wait=True)
+        metrics = (epoch+1, train_loss, val_loss)
+        table.add_row(metrics)
+        print(table)
 
     train_loop.close()
 
