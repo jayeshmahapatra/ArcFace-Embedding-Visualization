@@ -17,13 +17,13 @@ from torchvision.datasets import MNIST
 
 
 # Hyperparameters
-num_epochs = 5
-batch_size = 128
+num_epochs = 80
+batch_size = 32
 learning_rate = 0.001
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Set the random seed for reproducible results
-seed = 40
+seed = 58
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
@@ -163,6 +163,14 @@ if __name__ == "__main__":
     #number of classes
     num_classes = len(dataset.classes)
 
+    # Create an instance of ArcFaceModel
+    if args.model == 'vgg8_arcface':
+        model = VGG8ArcFace(num_classes=num_classes, num_features=3).to(device)
+        #batch_size = 16 #Lower batch size for ArcFaceModel, as it's easier to separate embeddings
+    elif args.model == 'vgg8_softmax':
+        model = VGG8Softmax(num_classes=num_classes, num_features=3).to(device)
+
+
     # Split the dataset into training, validation and test sets
 
     # Define the split sizes
@@ -176,13 +184,6 @@ if __name__ == "__main__":
     # Create data loaders with transforms, no shuffling for repeatable results
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-
-    # Create an instance of ArcFaceModel
-    if args.model == 'vgg8_arcface':
-        model = VGG8ArcFace(num_classes=num_classes, num_features=3).to(device)
-    elif args.model == 'vgg8_softmax':
-        model = VGG8Softmax(num_classes=num_classes, num_features=3).to(device)
-
 
     # Loss function and optimizer
     criterion = nn.CrossEntropyLoss()

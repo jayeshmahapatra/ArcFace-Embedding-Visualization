@@ -53,9 +53,7 @@ class VGG8Softmax(nn.Module):
         x = self.fc1(x)
         x = self.batchnorm2(x)
         embedding_vectors = x.cpu().detach()
-        x = F.normalize(x)
         x = self.fc2(x)
-        x = self.softmax(x)
         return x, embedding_vectors
     
     def get_embedding(self, x):
