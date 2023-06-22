@@ -9,12 +9,12 @@ This repository contains code for visualizing how embeddings evolve when trained
    <table>
       <tr>
          <td align="center">
-            <img src="data/vgg8_arcface_Training_Embeddings.gif" width="400" height="400" />
+            <img src="data/vgg8_arcface_Training_Embeddings.gif" width="380" height="380" />
             <br />
             ArcFace 3D embeddings during training.
          </td>
          <td align="center">
-            <img src="data/vgg8_softmax_Training_Embeddings.gif" width="400" height="400" />
+            <img src="data/vgg8_softmax_Training_Embeddings.gif" width="380" height="380" />
             <br />
             Softmax 3D embeddings during training.
          </td>
