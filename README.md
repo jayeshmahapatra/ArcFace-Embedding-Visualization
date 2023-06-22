@@ -7,11 +7,11 @@ This repository contains code for visualizing how embeddings evolve when trained
    <h3>Embedding Comparison</h3>
    <div style="display: flex; justify-content: center;">
       <div style="margin-right: 10px;">
-         <img src="data/vgg8_arcface_Training_Embeddings.gif" width="400" height="400" />
+         <img src="data/vgg8_arcface_Training_Embeddings.gif" width="300" height="300" />
          <figcaption>ArcFace 3D embeddings during training.</figcaption>
       </div>
       <div style="margin-left: 10px;">
-         <img src="data/vgg8_softmax_Training_Embeddings.gif" width="400" height="400" />
+         <img src="data/vgg8_softmax_Training_Embeddings.gif" width="300" height="300" />
          <figcaption>Softmax 3D embeddings during training.</figcaption>
       </div>
    </div>
