@@ -62,9 +62,18 @@ def plot_embeddings(embeddings, labels, title_poststr = "Training_Embeddings", a
 
         #Add the image to the list of frames
         frames.append(imageio.imread(f"data/{args.model}_{title_poststr}_{epoch}.png"))
-    
-    #Save the list of frames as a GIF
-    imageio.mimsave(f"data/{args.model}_{title_poststr}.gif", frames, duration=125)
+
+    # Set the duration for each frame except the last one
+    frame_duration = 125
+
+    # Set the duration for the last frame (delay before loop restarts)
+    last_frame_duration = 3000  # 3 second
+
+    # Set the durations for all frames
+    frame_durations = [frame_duration] * (len(frames) - 1) + [last_frame_duration]
+
+    # Save the list of frames as a GIF with looping and delay
+    imageio.mimsave(f"data/{args.model}_{title_poststr}.gif", frames, duration=frame_durations, loop=0)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Train a model on MNIST dataset')
