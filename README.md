@@ -77,7 +77,7 @@ If you want to just reproduce the gifs above, I have packaged all commands into 
 ```
 bash run_all.sh
 ```
-This should run the model trainings and then run the visualization scripts to generate the gifs.
+This should install the requirements, run the model trainings, and then run the visualization scripts to generate the gifs.
 
 ## Contributing
 
