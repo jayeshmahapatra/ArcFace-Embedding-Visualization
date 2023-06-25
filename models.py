@@ -21,7 +21,7 @@ class VGGBlock(nn.Module):
     def forward(self, x):
         return self.block(x)
     
-# Create a VGG8 network with Softmax layer at the end
+# Create a base VGG8 network that will be trained using softmax loss
 
 class VGG8Softmax(nn.Module):
     def __init__(self, num_features, num_classes):
@@ -38,7 +38,6 @@ class VGG8Softmax(nn.Module):
         self.fc1 = nn.Linear(64 * 3 * 3, num_features)
         self.batchnorm2 = nn.BatchNorm1d(num_features)
         self.fc2 = nn.Linear(num_features, num_classes)
-        self.softmax = nn.Softmax(dim=1)
     
     def forward(self, x, labels=None):
         x = self.block1(x)
