@@ -22,6 +22,7 @@ class VGGBlock(nn.Module):
         return self.block(x)
     
 # Create a base VGG8 network that will be trained using softmax loss
+# Not using an explicit softmax layer as it is already included in the CrossEntropyLoss function
 
 class VGG8Softmax(nn.Module):
     def __init__(self, num_features, num_classes):
