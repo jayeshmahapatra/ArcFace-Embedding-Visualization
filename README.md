@@ -24,7 +24,7 @@ This repository contains code for visualizing how embeddings evolve when trained
 </div>
 
 
-This is a companion repo to my blog: [ Enhancing Embedding Separation with ArcFace Loss ](https://jayeshmahapatra.github.io/2023/06/22/arcface.html) <br />
+This is a companion repo to my blog: [ Enhancing Embedding Separation with ArcFace Loss ](https://jayeshmahapatra.github.io/blog/2023-06-22-arcface) <br />
 We train a VGG8 Network with ArcFace Loss to generate these embeddings.
 <br />
 
